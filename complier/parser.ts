@@ -1,16 +1,17 @@
 import { Lexer, LexerWord, LexerNumber } from "./lexer";
-import { PAPER, PEN, LINE } from "../consts/call.consts";
+import { PAPER, PEN, LINE } from "../consts/call-expressions.consts";
 
 export interface Expression {
   type: string;
   name?: string;
-  value?: any;
-  arguments?: any[];
+  value?: string | number;
+  arguments?: Expression[];
+  body?: Expression[];
 }
-export class ASTExpression implements Expression {
+export class ASTExpression {
   readonly type = "Drawing";
   body: Expression[] = [];
-  constructor(private _body?: Expression[]) {
+  constructor(private _body: Expression[] = []) {
     this.body = _body;
   }
 }
@@ -23,28 +24,33 @@ export class NumberExpression implements Expression {
   }
 }
 
-export class PaperExpression implements Expression {
+export class CallExpression implements Expression {
   readonly type = "CallExpression";
-  readonly name = PAPER;
-  arguments: NumberExpression[] = [];
-  constructor(private args?: NumberExpression[]) {
-    this.arguments = args;
+  readonly name: string;
+  constructor(private _name: string) {
+    this.name = _name;
   }
 }
-export class PenExpression implements Expression {
-  readonly type = "CallExpression";
-  readonly name = PEN;
-  arguments: NumberExpression[] = [];
-  constructor(private args?: NumberExpression[]) {
-    this.arguments = args;
+
+export class PaperExpression extends CallExpression {
+  arguments: NumberExpression[];
+  constructor(private _arguments: NumberExpression[] = []) {
+    super(PAPER);
+    this.arguments = _arguments;
   }
 }
-export class LineExpression implements Expression {
-  readonly type = "CallExpression";
-  readonly name = LINE;
-  arguments: NumberExpression[] = [];
-  constructor(private args?: NumberExpression[]) {
-    this.arguments = args;
+export class PenExpression extends CallExpression {
+  arguments: NumberExpression[];
+  constructor(private _arguments: NumberExpression[] = []) {
+    super(PEN);
+    this.arguments = _arguments;
+  }
+}
+export class LineExpression extends CallExpression {
+  arguments: NumberExpression[];
+  constructor(private _arguments: NumberExpression[] = []) {
+    super(LINE);
+    this.arguments = _arguments;
   }
 }
 
@@ -86,20 +92,24 @@ export default function parser(tokens: Lexer[]) {
           } else {
             throw "Pen command must be followed by a number";
           }
+
+          break;
         }
         case LINE: {
           const expression = new LineExpression();
           // if current token is CallExpression of type Paper, next token should be color argument
           const args = tokens.splice(0, 4);
           if (args.every((arg: Lexer) => arg instanceof LexerNumber)) {
-            args.map((arg: LexerNumber) => {
-              expression.arguments.push(new NumberExpression(arg.value));
+            args.map((arg: Lexer) => {
+              expression.arguments.push(new NumberExpression((<LexerNumber>arg).value));
             });
 
             AST.body.push(expression);
           } else {
             throw "Line command must be followed by a four number arguments";
           }
+
+          break;
         }
       }
     }

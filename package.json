@@ -1,10 +1,17 @@
 {
   "name": "sbn-compiler",
   "version": "0.0.1",
+  "scripts": {
+    "tsc": "tsc"
+  },
   "devDependencies": {
     "@types/node": "^11.11.4",
     "ts-node": "^8.0.3",
     "tslint": "^5.14.0",
     "typescript": "^3.3.4000"
+  },
+  "dependencies": {
+    "@types/express": "^4.16.1",
+    "express": "^4.16.4"
   }
 }

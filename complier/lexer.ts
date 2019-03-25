@@ -12,7 +12,7 @@ export class LexerWord implements Lexer {
 export class LexerNumber implements Lexer {
   readonly type = "number";
   value: number;
-  constructor(_value: number) {
+  constructor(private _value: number) {
     this.value = _value;
   }
 }
