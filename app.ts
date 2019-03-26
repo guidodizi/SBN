@@ -1,21 +1,30 @@
 import SBN from "./complier/index";
-import express = require("express");
+import fs = require("fs");
+// const code = `
+// Paper 100
+// Pen 0
+// Line 0 0 100 100
+// Line 100 0 0 100
+// `;
 
-const code = `
-Paper 100 
-Pen 0
-Line 0 0 100 100
-Line 100 0 0 100
-`;
+if (process.argv[2] === undefined) {
+  throw new Error("Define route of DBN file!");
+}
+
+let code = "";
+code = fs.readFileSync(`${process.cwd()}/${process.argv[2]}`, "utf8");
 const sbn = new SBN();
-
-// Create a new express application instance
-const app: express.Application = express();
-
-app.get("/", function(req, res) {
-  res.send(sbn.complie(code));
-});
-
-app.listen(3000, function() {
-  console.log("Example app listening on port 3000!");
-});
+const svg = sbn.complie(code);
+const fileName = process.argv[2].split(".dbn")[0];
+fs.writeFileSync(
+  `${process.cwd()}/${fileName}.html`,
+  `
+<html>
+<head></head>
+<body>
+  ${svg}
+</body>
+</html>
+`
+);
+console.log("SVG complied!");

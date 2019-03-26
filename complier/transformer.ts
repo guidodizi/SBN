@@ -8,6 +8,7 @@ import {
 } from "./parser";
 import { PAPER, PEN, LINE } from "../consts/call-expressions.consts";
 
+const MAGNIFIER = 5;
 export interface SVG {
   tag: string;
   attr: { [x: string]: any };
@@ -16,9 +17,9 @@ export interface SVG {
 export class HeadSVG implements SVG {
   readonly tag = "svg";
   attr: { [x: string]: any } = {
-    width: 100,
-    height: 100,
-    viewBox: "0 0 100 100",
+    width: 100 * MAGNIFIER,
+    height: 100 * MAGNIFIER,
+    viewBox: `0 0 ${100 * MAGNIFIER} ${100 * MAGNIFIER}`,
     xmlns: "http://www.w3.org/2000/svg",
     version: "1.1"
   };
@@ -36,8 +37,8 @@ export class RectSVG implements SVG {
   attr: { [x: string]: any } = {
     x: 0,
     y: 0,
-    width: 100,
-    height: 100,
+    width: 100 * MAGNIFIER,
+    height: 100 * MAGNIFIER,
     fill: "rgb(100%,100%,100%)"
   };
   constructor(private _attr: { [x: string]: any } = []) {
@@ -90,10 +91,10 @@ export default function transformer(ast: ASTExpression) {
           const y2 = lineNode.arguments[3].value;
           headSVG.body.push(
             new LineSVG({
-              x1,
-              y1,
-              x2,
-              y2,
+              x1: x1 * MAGNIFIER,
+              y1: y1 * MAGNIFIER,
+              x2: x2 * MAGNIFIER,
+              y2: y2 * MAGNIFIER,
               stroke: "rgb(" + penColor + "%," + penColor + "%," + penColor + "%)",
               "stroke-linecap": "round"
             })
