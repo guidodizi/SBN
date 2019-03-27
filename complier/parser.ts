@@ -5,60 +5,60 @@ export interface Expression {
   type: string;
   name?: string;
   value?: string | number;
-  arguments?: Expression[];
+  args?: Expression[];
   body?: Expression[];
 }
 export class ASTExpression {
   readonly type = "Drawing";
   body: Expression[] = [];
-  constructor(private _body: Expression[] = []) {
-    this.body = _body;
+  constructor(body: Expression[] = []) {
+    this.body = body;
   }
 }
 
 export class NumberExpression implements Expression {
   readonly type = "NumberLiteral";
   value: number;
-  constructor(private _value: number) {
-    this.value = _value;
+  constructor(value: number) {
+    this.value = value;
   }
 }
 
 export class CommentExpression implements Expression {
   readonly type = "CommentExpression";
   value: string;
-  constructor(private _value: string = "") {
-    this.value = _value;
+  constructor(value: string = "") {
+    this.value = value;
   }
 }
 
 export class CallExpression implements Expression {
   readonly type = "CallExpression";
   readonly name: string;
-  constructor(private _name: string) {
-    this.name = _name;
+  constructor(name: string) {
+    this.name = name;
   }
 }
 
 export class PaperExpression extends CallExpression {
-  arguments: NumberExpression[];
-  constructor(private _arguments: NumberExpression[] = []) {
+  args: NumberExpression[];
+  constructor(args: NumberExpression[] = []) {
     super(PAPER);
-    this.arguments = _arguments;
+    this.args = args;
   }
 }
 export class PenExpression extends CallExpression {
-  arguments: NumberExpression[];
-  constructor(private _arguments: NumberExpression[] = []) {
+  args: NumberExpression[];
+  constructor(args: NumberExpression[] = []) {
     super(PEN);
-    this.arguments = _arguments;
+    this.args = args;
   }
 }
 export class LineExpression extends CallExpression {
-  arguments: NumberExpression[];
-  constructor(private _arguments: NumberExpression[] = []) {
+  args: NumberExpression[];
+  constructor(args: NumberExpression[] = []) {
     super(LINE);
-    this.arguments = _arguments;
+    this.args = args;
   }
 }
 
@@ -67,7 +67,7 @@ function findArguments(
   command: string,
   cantArgs: number,
   expectedTypes: ("word" | "number")[]
-): { newTokens: Lexer[]; expressionArguments: Expression[] } {
+): { newTokens: Lexer[]; expressionArgs: Expression[] } {
   // get arguments
   const args = tokens.splice(0, cantArgs);
 
@@ -92,7 +92,7 @@ function findArguments(
 
   return {
     newTokens: [...tokens],
-    expressionArguments: <Expression[]>args.map((arg: Lexer) => {
+    expressionArgs: <Expression[]>args.map((arg: Lexer) => {
       if (arg instanceof LexerNumber) {
         return new NumberExpression(arg.value);
       } else if (arg instanceof LexerWord) {
@@ -125,9 +125,9 @@ export default function parser(tokens: Lexer[]) {
         case PAPER: {
           const expression = new PaperExpression();
 
-          const { newTokens, expressionArguments } = findArguments(tokens, PAPER, 1, ["number"]);
+          const { newTokens, expressionArgs } = findArguments(tokens, PAPER, 1, ["number"]);
           tokens = newTokens;
-          expression.arguments = <NumberExpression[]>expressionArguments;
+          expression.args = <NumberExpression[]>expressionArgs;
           AST.body.push(expression);
           break;
         }
@@ -135,9 +135,9 @@ export default function parser(tokens: Lexer[]) {
         case PEN: {
           const expression = new PenExpression();
 
-          const { newTokens, expressionArguments } = findArguments(tokens, PEN, 1, ["number"]);
+          const { newTokens, expressionArgs } = findArguments(tokens, PEN, 1, ["number"]);
           tokens = newTokens;
-          expression.arguments = <NumberExpression[]>expressionArguments;
+          expression.args = <NumberExpression[]>expressionArgs;
           AST.body.push(expression);
 
           break;
@@ -145,14 +145,14 @@ export default function parser(tokens: Lexer[]) {
         case LINE: {
           const expression = new LineExpression();
 
-          const { newTokens, expressionArguments } = findArguments(tokens, LINE, 4, [
+          const { newTokens, expressionArgs } = findArguments(tokens, LINE, 4, [
             "number",
             "number",
             "number",
             "number"
           ]);
           tokens = newTokens;
-          expression.arguments = <NumberExpression[]>expressionArguments;
+          expression.args = <NumberExpression[]>expressionArgs;
           AST.body.push(expression);
 
           break;

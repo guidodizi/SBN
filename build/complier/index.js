@@ -20,4 +20,3 @@ var SBN = /** @class */ (function () {
     return SBN;
 }());
 exports.default = SBN;
-;

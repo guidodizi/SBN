@@ -5,15 +5,15 @@ export interface Lexer {
 export class LexerWord implements Lexer {
   readonly type = "word";
   value: string;
-  constructor(private _value: string) {
-    this.value = _value;
+  constructor(value: string) {
+    this.value = value;
   }
 }
 export class LexerNumber implements Lexer {
   readonly type = "number";
   value: number;
-  constructor(private _value: number) {
-    this.value = _value;
+  constructor(value: number) {
+    this.value = value;
   }
 }
 export class LexerNewLine implements Lexer {
@@ -29,7 +29,7 @@ export default function lexer(code: string): Lexer[] {
   return tokens.map((token: string) => {
     // string
     if (isNaN(+token)) {
-      if (token == "*nl*") return new LexerNewLine();
+      if (token === "*nl*") return new LexerNewLine();
       else return new LexerWord(token);
     }
     //number

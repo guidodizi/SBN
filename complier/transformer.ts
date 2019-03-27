@@ -24,12 +24,12 @@ export class HeadSVG implements SVG {
     version: "1.1"
   };
   body: SVG[];
-  constructor(private _attr: { [x: string]: any } = [], private _body: SVG[] = []) {
+  constructor(attr: { [x: string]: any } = [], body: SVG[] = []) {
     // modify preset attributes to given
-    Object.keys(_attr).map(key => {
-      this.attr[key] = _attr[key];
+    Object.keys(attr).map(key => {
+      this.attr[key] = attr[key];
     });
-    this.body = _body;
+    this.body = body;
   }
 }
 export class RectSVG implements SVG {
@@ -41,20 +41,20 @@ export class RectSVG implements SVG {
     height: 100 * MAGNIFIER,
     fill: "rgb(100%,100%,100%)"
   };
-  constructor(private _attr: { [x: string]: any } = []) {
+  constructor(attr: { [x: string]: any } = []) {
     // modify preset attributes to given
-    Object.keys(_attr).map(key => {
-      this.attr[key] = _attr[key];
+    Object.keys(attr).map(key => {
+      this.attr[key] = attr[key];
     });
   }
 }
 export class LineSVG implements SVG {
   readonly tag = "line";
   attr: { [x: string]: any } = {};
-  constructor(private _attr: { [x: string]: any } = []) {
+  constructor(attr: { [x: string]: any } = []) {
     // modify preset attributes to given
-    Object.keys(_attr).map(key => {
-      this.attr[key] = _attr[key];
+    Object.keys(attr).map(key => {
+      this.attr[key] = attr[key];
     });
   }
 }
@@ -70,7 +70,7 @@ export default function transformer(ast: ASTExpression) {
     if (node instanceof CallExpression) {
       switch (node.name) {
         case PAPER: {
-          const paperColor = (<PaperExpression>node).arguments[0].value;
+          const paperColor = (<PaperExpression>node).args[0].value;
           headSVG.body.push(
             new RectSVG({
               fill: "rgb(" + paperColor + "%," + paperColor + "%," + paperColor + "%)"
@@ -80,15 +80,15 @@ export default function transformer(ast: ASTExpression) {
           break;
         }
         case PEN: {
-          penColor = (<PenExpression>node).arguments[0].value;
+          penColor = (<PenExpression>node).args[0].value;
           break;
         }
         case LINE: {
           const lineNode = <LineExpression>node;
-          const x1 = lineNode.arguments[0].value;
-          const y1 = lineNode.arguments[1].value;
-          const x2 = lineNode.arguments[2].value;
-          const y2 = lineNode.arguments[3].value;
+          const x1 = lineNode.args[0].value;
+          const y1 = lineNode.args[1].value;
+          const x2 = lineNode.args[2].value;
+          const y2 = lineNode.args[3].value;
           headSVG.body.push(
             new LineSVG({
               x1: x1 * MAGNIFIER,

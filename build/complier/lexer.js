@@ -1,19 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var LexerWord = /** @class */ (function () {
-    function LexerWord(_value) {
-        this._value = _value;
+    function LexerWord(value) {
         this.type = "word";
-        this.value = _value;
+        this.value = value;
     }
     return LexerWord;
 }());
 exports.LexerWord = LexerWord;
 var LexerNumber = /** @class */ (function () {
-    function LexerNumber(_value) {
-        this._value = _value;
+    function LexerNumber(value) {
         this.type = "number";
-        this.value = _value;
+        this.value = value;
     }
     return LexerNumber;
 }());
@@ -35,7 +33,7 @@ function lexer(code) {
     return tokens.map(function (token) {
         // string
         if (isNaN(+token)) {
-            if (token == "*nl*")
+            if (token === "*nl*")
                 return new LexerNewLine();
             else
                 return new LexerWord(token);

@@ -19,5 +19,12 @@ export default function generator(svg_ast: HeadSVG) {
     .join("\n\t");
 
   //wrap with open and close svg tag to complete SVG code
-  return "<svg " + svg_attr + ">\n" + tags + "\n</svg>";
+  return `<html>
+    <head></head>
+    <body>
+      <svg ${svg_attr}>
+        ${tags}
+      </svg>
+    </body>
+  </html>`;
 }

@@ -16,51 +16,46 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var lexer_1 = require("./lexer");
 var call_expressions_consts_1 = require("../consts/call-expressions.consts");
 var ASTExpression = /** @class */ (function () {
-    function ASTExpression(_body) {
-        if (_body === void 0) { _body = []; }
-        this._body = _body;
+    function ASTExpression(body) {
+        if (body === void 0) { body = []; }
         this.type = "Drawing";
         this.body = [];
-        this.body = _body;
+        this.body = body;
     }
     return ASTExpression;
 }());
 exports.ASTExpression = ASTExpression;
 var NumberExpression = /** @class */ (function () {
-    function NumberExpression(_value) {
-        this._value = _value;
+    function NumberExpression(value) {
         this.type = "NumberLiteral";
-        this.value = _value;
+        this.value = value;
     }
     return NumberExpression;
 }());
 exports.NumberExpression = NumberExpression;
 var CommentExpression = /** @class */ (function () {
-    function CommentExpression(_value) {
-        if (_value === void 0) { _value = ""; }
-        this._value = _value;
+    function CommentExpression(value) {
+        if (value === void 0) { value = ""; }
         this.type = "CommentExpression";
-        this.value = _value;
+        this.value = value;
     }
     return CommentExpression;
 }());
 exports.CommentExpression = CommentExpression;
 var CallExpression = /** @class */ (function () {
-    function CallExpression(_name) {
-        this._name = _name;
+    function CallExpression(name) {
         this.type = "CallExpression";
-        this.name = _name;
+        this.name = name;
     }
     return CallExpression;
 }());
 exports.CallExpression = CallExpression;
 var PaperExpression = /** @class */ (function (_super) {
     __extends(PaperExpression, _super);
-    function PaperExpression(_arguments) {
-        if (_arguments === void 0) { _arguments = []; }
+    function PaperExpression(args) {
+        if (args === void 0) { args = []; }
         var _this = _super.call(this, call_expressions_consts_1.PAPER) || this;
-        _this._arguments = _arguments;
-        _this.arguments = _arguments;
+        _this.args = args;
         return _this;
     }
     return PaperExpression;
@@ -68,11 +63,10 @@ var PaperExpression = /** @class */ (function (_super) {
 exports.PaperExpression = PaperExpression;
 var PenExpression = /** @class */ (function (_super) {
     __extends(PenExpression, _super);
-    function PenExpression(_arguments) {
-        if (_arguments === void 0) { _arguments = []; }
+    function PenExpression(args) {
+        if (args === void 0) { args = []; }
         var _this = _super.call(this, call_expressions_consts_1.PEN) || this;
-        _this._arguments = _arguments;
-        _this.arguments = _arguments;
+        _this.args = args;
         return _this;
     }
     return PenExpression;
@@ -80,11 +74,10 @@ var PenExpression = /** @class */ (function (_super) {
 exports.PenExpression = PenExpression;
 var LineExpression = /** @class */ (function (_super) {
     __extends(LineExpression, _super);
-    function LineExpression(_arguments) {
-        if (_arguments === void 0) { _arguments = []; }
+    function LineExpression(args) {
+        if (args === void 0) { args = []; }
         var _this = _super.call(this, call_expressions_consts_1.LINE) || this;
-        _this._arguments = _arguments;
-        _this.arguments = _arguments;
+        _this.args = args;
         return _this;
     }
     return LineExpression;
@@ -111,7 +104,7 @@ function findArguments(tokens, command, cantArgs, expectedTypes) {
         throw command + " takes on parameter " + (positionArgument + 1) + " a " + expectedTypes[positionArgument] + ". Found an argument of type " + args[positionArgument].type;
     return {
         newTokens: tokens.slice(),
-        expressionArguments: args.map(function (arg) {
+        expressionArgs: args.map(function (arg) {
             if (arg instanceof lexer_1.LexerNumber) {
                 return new NumberExpression(arg.value);
             }
@@ -141,17 +134,17 @@ function parser(tokens) {
                 }
                 case call_expressions_consts_1.PAPER: {
                     var expression = new PaperExpression();
-                    var _a = findArguments(tokens, call_expressions_consts_1.PAPER, 1, ["number"]), newTokens = _a.newTokens, expressionArguments = _a.expressionArguments;
+                    var _a = findArguments(tokens, call_expressions_consts_1.PAPER, 1, ["number"]), newTokens = _a.newTokens, expressionArgs = _a.expressionArgs;
                     tokens = newTokens;
-                    expression.arguments = expressionArguments;
+                    expression.args = expressionArgs;
                     AST.body.push(expression);
                     break;
                 }
                 case call_expressions_consts_1.PEN: {
                     var expression = new PenExpression();
-                    var _b = findArguments(tokens, call_expressions_consts_1.PEN, 1, ["number"]), newTokens = _b.newTokens, expressionArguments = _b.expressionArguments;
+                    var _b = findArguments(tokens, call_expressions_consts_1.PEN, 1, ["number"]), newTokens = _b.newTokens, expressionArgs = _b.expressionArgs;
                     tokens = newTokens;
-                    expression.arguments = expressionArguments;
+                    expression.args = expressionArgs;
                     AST.body.push(expression);
                     break;
                 }
@@ -162,9 +155,9 @@ function parser(tokens) {
                         "number",
                         "number",
                         "number"
-                    ]), newTokens = _c.newTokens, expressionArguments = _c.expressionArguments;
+                    ]), newTokens = _c.newTokens, expressionArgs = _c.expressionArgs;
                     tokens = newTokens;
-                    expression.arguments = expressionArguments;
+                    expression.args = expressionArgs;
                     AST.body.push(expression);
                     break;
                 }

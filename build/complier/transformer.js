@@ -4,12 +4,10 @@ var parser_1 = require("./parser");
 var call_expressions_consts_1 = require("../consts/call-expressions.consts");
 var MAGNIFIER = 5;
 var HeadSVG = /** @class */ (function () {
-    function HeadSVG(_attr, _body) {
-        if (_attr === void 0) { _attr = []; }
-        if (_body === void 0) { _body = []; }
+    function HeadSVG(attr, body) {
+        if (attr === void 0) { attr = []; }
+        if (body === void 0) { body = []; }
         var _this = this;
-        this._attr = _attr;
-        this._body = _body;
         this.tag = "svg";
         this.attr = {
             width: 100 * MAGNIFIER,
@@ -19,19 +17,18 @@ var HeadSVG = /** @class */ (function () {
             version: "1.1"
         };
         // modify preset attributes to given
-        Object.keys(_attr).map(function (key) {
-            _this.attr[key] = _attr[key];
+        Object.keys(attr).map(function (key) {
+            _this.attr[key] = attr[key];
         });
-        this.body = _body;
+        this.body = body;
     }
     return HeadSVG;
 }());
 exports.HeadSVG = HeadSVG;
 var RectSVG = /** @class */ (function () {
-    function RectSVG(_attr) {
-        if (_attr === void 0) { _attr = []; }
+    function RectSVG(attr) {
+        if (attr === void 0) { attr = []; }
         var _this = this;
-        this._attr = _attr;
         this.tag = "rect";
         this.attr = {
             x: 0,
@@ -41,23 +38,22 @@ var RectSVG = /** @class */ (function () {
             fill: "rgb(100%,100%,100%)"
         };
         // modify preset attributes to given
-        Object.keys(_attr).map(function (key) {
-            _this.attr[key] = _attr[key];
+        Object.keys(attr).map(function (key) {
+            _this.attr[key] = attr[key];
         });
     }
     return RectSVG;
 }());
 exports.RectSVG = RectSVG;
 var LineSVG = /** @class */ (function () {
-    function LineSVG(_attr) {
-        if (_attr === void 0) { _attr = []; }
+    function LineSVG(attr) {
+        if (attr === void 0) { attr = []; }
         var _this = this;
-        this._attr = _attr;
         this.tag = "line";
         this.attr = {};
         // modify preset attributes to given
-        Object.keys(_attr).map(function (key) {
-            _this.attr[key] = _attr[key];
+        Object.keys(attr).map(function (key) {
+            _this.attr[key] = attr[key];
         });
     }
     return LineSVG;
@@ -72,22 +68,22 @@ function transformer(ast) {
         if (node instanceof parser_1.CallExpression) {
             switch (node.name) {
                 case call_expressions_consts_1.PAPER: {
-                    var paperColor = node.arguments[0].value;
+                    var paperColor = node.args[0].value;
                     headSVG.body.push(new RectSVG({
                         fill: "rgb(" + paperColor + "%," + paperColor + "%," + paperColor + "%)"
                     }));
                     break;
                 }
                 case call_expressions_consts_1.PEN: {
-                    penColor = node.arguments[0].value;
+                    penColor = node.args[0].value;
                     break;
                 }
                 case call_expressions_consts_1.LINE: {
                     var lineNode = node;
-                    var x1 = lineNode.arguments[0].value;
-                    var y1 = lineNode.arguments[1].value;
-                    var x2 = lineNode.arguments[2].value;
-                    var y2 = lineNode.arguments[3].value;
+                    var x1 = lineNode.args[0].value;
+                    var y1 = lineNode.args[1].value;
+                    var x2 = lineNode.args[2].value;
+                    var y2 = lineNode.args[3].value;
                     headSVG.body.push(new LineSVG({
                         x1: x1 * MAGNIFIER,
                         y1: y1 * MAGNIFIER,

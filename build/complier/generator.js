@@ -15,6 +15,6 @@ function generator(svg_ast) {
         .map(function (node) { return "<" + node.tag + " " + createAttrString(node) + "></" + node.tag + ">"; })
         .join("\n\t");
     //wrap with open and close svg tag to complete SVG code
-    return "<svg " + svg_attr + ">\n" + tags + "\n</svg>";
+    return "<html>\n    <head></head>\n    <body>\n      <svg " + svg_attr + ">\n        " + tags + "\n      </svg>\n    </body>\n  </html>";
 }
 exports.default = generator;
