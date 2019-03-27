@@ -105,6 +105,9 @@ function findArguments(
 export default function parser(tokens: Lexer[]) {
   const AST = new ASTExpression();
 
+  let paper = false;
+  let pen = false;
+
   // extract a token at a time as currentToken. Loop until we are out of tokens
   while (tokens.length > 0) {
     const currentToken = tokens.shift();
@@ -123,6 +126,11 @@ export default function parser(tokens: Lexer[]) {
           break;
         }
         case PAPER: {
+          if (paper) {
+            throw `[${PAPER}] was already defined`;
+          }
+          paper = true;
+
           const expression = new PaperExpression();
           const command = PAPER;
           const cantArgs = 1;
@@ -145,6 +153,13 @@ export default function parser(tokens: Lexer[]) {
         }
 
         case PEN: {
+          if (!paper) {
+            throw `First command must always be a [${PAPER}] command`;
+          }
+          if (pen) {
+            throw `[${PEN}] was already defined`;
+          }
+          pen = true;
           const expression = new PenExpression();
           const command = PEN;
           const cantArgs = 1;
@@ -166,6 +181,9 @@ export default function parser(tokens: Lexer[]) {
           break;
         }
         case LINE: {
+          if (!paper) {
+            throw `First command must always be a [${PAPER}] command`;
+          }
           const expression = new LineExpression();
           const command = LINE;
           const cantArgs = 4;

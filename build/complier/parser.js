@@ -116,6 +116,8 @@ function findArguments(tokens, command, cantArgs, expectedTypes) {
 }
 function parser(tokens) {
     var AST = new ASTExpression();
+    var paper = false;
+    var pen = false;
     // extract a token at a time as currentToken. Loop until we are out of tokens
     while (tokens.length > 0) {
         var currentToken = tokens.shift();
@@ -133,6 +135,10 @@ function parser(tokens) {
                     break;
                 }
                 case call_expressions_consts_1.PAPER: {
+                    if (paper) {
+                        throw "[" + call_expressions_consts_1.PAPER + "] was already defined";
+                    }
+                    paper = true;
                     var expression = new PaperExpression();
                     var command = call_expressions_consts_1.PAPER;
                     var cantArgs = 1;
@@ -141,11 +147,18 @@ function parser(tokens) {
                     tokens = newTokens;
                     expression.args = expressionArgs;
                     if (tokens.shift().type !== "newline")
-                        throw command + " expected amount of arguments: " + cantArgs + " ";
+                        throw "[" + command + "] expected amount of arguments: " + cantArgs + " ";
                     AST.body.push(expression);
                     break;
                 }
                 case call_expressions_consts_1.PEN: {
+                    if (!paper) {
+                        throw "First command must always be a [" + call_expressions_consts_1.PAPER + "] command";
+                    }
+                    if (pen) {
+                        throw "[" + call_expressions_consts_1.PEN + "] was already defined";
+                    }
+                    pen = true;
                     var expression = new PenExpression();
                     var command = call_expressions_consts_1.PEN;
                     var cantArgs = 1;
@@ -154,11 +167,14 @@ function parser(tokens) {
                     tokens = newTokens;
                     expression.args = expressionArgs;
                     if (tokens.shift().type !== "newline")
-                        throw command + " expected amount of arguments: " + cantArgs + " ";
+                        throw "[" + command + "] expected amount of arguments: " + cantArgs + " ";
                     AST.body.push(expression);
                     break;
                 }
                 case call_expressions_consts_1.LINE: {
+                    if (!paper) {
+                        throw "First command must always be a [" + call_expressions_consts_1.PAPER + "] command";
+                    }
                     var expression = new LineExpression();
                     var command = call_expressions_consts_1.LINE;
                     var cantArgs = 4;
@@ -167,7 +183,7 @@ function parser(tokens) {
                     tokens = newTokens;
                     expression.args = expressionArgs;
                     if (tokens.shift().type !== "newline")
-                        throw command + " expected amount of arguments: " + cantArgs + " ";
+                        throw "[" + command + "] expected amount of arguments: " + cantArgs + " ";
                     AST.body.push(expression);
                     break;
                 }
