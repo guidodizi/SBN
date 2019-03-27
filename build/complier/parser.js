@@ -35,6 +35,16 @@ var NumberExpression = /** @class */ (function () {
     return NumberExpression;
 }());
 exports.NumberExpression = NumberExpression;
+var CommentExpression = /** @class */ (function () {
+    function CommentExpression(_value) {
+        if (_value === void 0) { _value = ""; }
+        this._value = _value;
+        this.type = "CommentExpression";
+        this.value = _value;
+    }
+    return CommentExpression;
+}());
+exports.CommentExpression = CommentExpression;
 var CallExpression = /** @class */ (function () {
     function CallExpression(_name) {
         this._name = _name;
@@ -80,60 +90,86 @@ var LineExpression = /** @class */ (function (_super) {
     return LineExpression;
 }(CallExpression));
 exports.LineExpression = LineExpression;
+function findArguments(tokens, command, cantArgs, expectedTypes) {
+    // get arguments
+    var args = tokens.splice(0, cantArgs);
+    // found less arguments than expected
+    if (args.length !== cantArgs)
+        throw command + " expected " + cantArgs + " arguments, but found only " + args.length;
+    // type check arguments
+    var positionArgument = 0;
+    var argsTypeCheck = args.some(function (arg, index) {
+        if (arg.type !== expectedTypes[index]) {
+            positionArgument = index;
+            return false;
+        }
+        else
+            return true;
+    });
+    // typecheck of arguments failed
+    if (!argsTypeCheck)
+        throw command + " takes on parameter " + (positionArgument + 1) + " a " + expectedTypes[positionArgument] + ". Found an argument of type " + args[positionArgument].type;
+    return {
+        newTokens: tokens.slice(),
+        expressionArguments: args.map(function (arg) {
+            if (arg instanceof lexer_1.LexerNumber) {
+                return new NumberExpression(arg.value);
+            }
+            else if (arg instanceof lexer_1.LexerWord) {
+                throw "Not implemented yet";
+            }
+        })
+    };
+}
 function parser(tokens) {
     var AST = new ASTExpression();
-    var _loop_1 = function () {
+    // extract a token at a time as currentToken. Loop until we are out of tokens
+    while (tokens.length > 0) {
         var currentToken = tokens.shift();
         // Since number tokens do nothing by itself, we only analyse syntax when we find LexerWord
         if (currentToken instanceof lexer_1.LexerWord) {
             switch (currentToken.value) {
+                case call_expressions_consts_1.COMMENT: {
+                    var expression = new CommentExpression();
+                    var next = tokens.shift();
+                    while (next.type !== "newline") {
+                        expression.value += next.value + " ";
+                        next = tokens.shift();
+                    }
+                    AST.body.push(expression);
+                    break;
+                }
                 case call_expressions_consts_1.PAPER: {
                     var expression = new PaperExpression();
-                    // if current token is CallExpression of type Paper, next token should be color argument
-                    var argument = tokens.shift();
-                    if (argument instanceof lexer_1.LexerNumber) {
-                        expression.arguments.push(new NumberExpression(argument.value));
-                        AST.body.push(expression);
-                    }
-                    else {
-                        throw "Paper command must be followed by a number";
-                    }
+                    var _a = findArguments(tokens, call_expressions_consts_1.PAPER, 1, ["number"]), newTokens = _a.newTokens, expressionArguments = _a.expressionArguments;
+                    tokens = newTokens;
+                    expression.arguments = expressionArguments;
+                    AST.body.push(expression);
                     break;
                 }
                 case call_expressions_consts_1.PEN: {
                     var expression = new PenExpression();
-                    // if current token is CallExpression of type Paper, next token should be color argument
-                    var argument = tokens.shift();
-                    if (argument instanceof lexer_1.LexerNumber) {
-                        expression.arguments.push(new NumberExpression(argument.value));
-                        AST.body.push(expression);
-                    }
-                    else {
-                        throw "Pen command must be followed by a number";
-                    }
+                    var _b = findArguments(tokens, call_expressions_consts_1.PEN, 1, ["number"]), newTokens = _b.newTokens, expressionArguments = _b.expressionArguments;
+                    tokens = newTokens;
+                    expression.arguments = expressionArguments;
+                    AST.body.push(expression);
                     break;
                 }
                 case call_expressions_consts_1.LINE: {
-                    var expression_1 = new LineExpression();
-                    // if current token is CallExpression of type Paper, next token should be color argument
-                    var args = tokens.splice(0, 4);
-                    if (args.every(function (arg) { return arg instanceof lexer_1.LexerNumber; })) {
-                        args.map(function (arg) {
-                            expression_1.arguments.push(new NumberExpression(arg.value));
-                        });
-                        AST.body.push(expression_1);
-                    }
-                    else {
-                        throw "Line command must be followed by a four number arguments";
-                    }
+                    var expression = new LineExpression();
+                    var _c = findArguments(tokens, call_expressions_consts_1.LINE, 4, [
+                        "number",
+                        "number",
+                        "number",
+                        "number"
+                    ]), newTokens = _c.newTokens, expressionArguments = _c.expressionArguments;
+                    tokens = newTokens;
+                    expression.arguments = expressionArguments;
+                    AST.body.push(expression);
                     break;
                 }
             }
         }
-    };
-    // extract a token at a time as currentToken. Loop until we are out of tokens
-    while (tokens.length > 0) {
-        _loop_1();
     }
     return AST;
 }

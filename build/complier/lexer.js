@@ -18,10 +18,31 @@ var LexerNumber = /** @class */ (function () {
     return LexerNumber;
 }());
 exports.LexerNumber = LexerNumber;
+var LexerNewLine = /** @class */ (function () {
+    function LexerNewLine() {
+        this.type = "newline";
+    }
+    return LexerNewLine;
+}());
+exports.LexerNewLine = LexerNewLine;
 function lexer(code) {
-    return code
+    var tokens = code
+        .replace(/[\n\r]/g, " *nl* ")
         .split(/\s+/)
-        .filter(function (token) { return token.length > 0; })
-        .map(function (token) { return (isNaN(+token) ? new LexerWord(token) : new LexerNumber(+token)); });
+        .filter(function (token) { return token.length > 0; });
+    if (tokens.length < 1)
+        throw "No tokens found. Try 'Paper 10'";
+    return tokens.map(function (token) {
+        // string
+        if (isNaN(+token)) {
+            if (token == "*nl*")
+                return new LexerNewLine();
+            else
+                return new LexerWord(token);
+        }
+        //number
+        else
+            return new LexerNumber(+token);
+    });
 }
 exports.default = lexer;

@@ -1,5 +1,5 @@
 import { Lexer, LexerWord, LexerNumber } from "./lexer";
-import { PAPER, PEN, LINE } from "../consts/call-expressions.consts";
+import { PAPER, PEN, LINE, COMMENT } from "../consts/call-expressions.consts";
 
 export interface Expression {
   type: string;
@@ -20,6 +20,14 @@ export class NumberExpression implements Expression {
   readonly type = "NumberLiteral";
   value: number;
   constructor(private _value: number) {
+    this.value = _value;
+  }
+}
+
+export class CommentExpression implements Expression {
+  readonly type = "CommentExpression";
+  value: string;
+  constructor(private _value: string = "") {
     this.value = _value;
   }
 }
@@ -54,6 +62,46 @@ export class LineExpression extends CallExpression {
   }
 }
 
+function findArguments(
+  tokens: Lexer[],
+  command: string,
+  cantArgs: number,
+  expectedTypes: ("word" | "number")[]
+): { newTokens: Lexer[]; expressionArguments: Expression[] } {
+  // get arguments
+  const args = tokens.splice(0, cantArgs);
+
+  // found less arguments than expected
+  if (args.length !== cantArgs)
+    throw `${command} expected ${cantArgs} arguments, but found only ${args.length}`;
+
+  // type check arguments
+  let positionArgument = 0;
+  const argsTypeCheck = args.some((arg: Lexer, index: number) => {
+    if (arg.type !== expectedTypes[index]) {
+      positionArgument = index;
+      return false;
+    } else return true;
+  });
+
+  // typecheck of arguments failed
+  if (!argsTypeCheck)
+    throw `${command} takes on parameter ${positionArgument + 1} a ${
+      expectedTypes[positionArgument]
+    }. Found an argument of type ${args[positionArgument].type}`;
+
+  return {
+    newTokens: [...tokens],
+    expressionArguments: <Expression[]>args.map((arg: Lexer) => {
+      if (arg instanceof LexerNumber) {
+        return new NumberExpression(arg.value);
+      } else if (arg instanceof LexerWord) {
+        throw "Not implemented yet";
+      }
+    })
+  };
+}
+
 export default function parser(tokens: Lexer[]) {
   const AST = new ASTExpression();
 
@@ -64,50 +112,48 @@ export default function parser(tokens: Lexer[]) {
     // Since number tokens do nothing by itself, we only analyse syntax when we find LexerWord
     if (currentToken instanceof LexerWord) {
       switch (currentToken.value) {
+        case COMMENT: {
+          const expression = new CommentExpression();
+          let next = <Lexer>tokens.shift();
+          while (next.type !== "newline") {
+            expression.value += next.value + " ";
+            next = <Lexer>tokens.shift();
+          }
+          AST.body.push(expression);
+          break;
+        }
         case PAPER: {
           const expression = new PaperExpression();
 
-          // if current token is CallExpression of type Paper, next token should be color argument
-          const argument = tokens.shift();
-          if (argument instanceof LexerNumber) {
-            expression.arguments.push(new NumberExpression(argument.value));
-
-            AST.body.push(expression);
-          } else {
-            throw "Paper command must be followed by a number";
-          }
-
+          const { newTokens, expressionArguments } = findArguments(tokens, PAPER, 1, ["number"]);
+          tokens = newTokens;
+          expression.arguments = <NumberExpression[]>expressionArguments;
+          AST.body.push(expression);
           break;
         }
 
         case PEN: {
           const expression = new PenExpression();
 
-          // if current token is CallExpression of type Paper, next token should be color argument
-          const argument = tokens.shift();
-          if (argument instanceof LexerNumber) {
-            expression.arguments.push(new NumberExpression(argument.value));
-
-            AST.body.push(expression);
-          } else {
-            throw "Pen command must be followed by a number";
-          }
+          const { newTokens, expressionArguments } = findArguments(tokens, PEN, 1, ["number"]);
+          tokens = newTokens;
+          expression.arguments = <NumberExpression[]>expressionArguments;
+          AST.body.push(expression);
 
           break;
         }
         case LINE: {
           const expression = new LineExpression();
-          // if current token is CallExpression of type Paper, next token should be color argument
-          const args = tokens.splice(0, 4);
-          if (args.every((arg: Lexer) => arg instanceof LexerNumber)) {
-            args.map((arg: Lexer) => {
-              expression.arguments.push(new NumberExpression((<LexerNumber>arg).value));
-            });
 
-            AST.body.push(expression);
-          } else {
-            throw "Line command must be followed by a four number arguments";
-          }
+          const { newTokens, expressionArguments } = findArguments(tokens, LINE, 4, [
+            "number",
+            "number",
+            "number",
+            "number"
+          ]);
+          tokens = newTokens;
+          expression.arguments = <NumberExpression[]>expressionArguments;
+          AST.body.push(expression);
 
           break;
         }

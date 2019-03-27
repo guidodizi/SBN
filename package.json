@@ -1,5 +1,5 @@
 {
-  "name": "sbn-compiler",
+  "name": "@guidodizi/sbn-compiler",
   "version": "0.0.1",
   "scripts": {
     "tsc": "tsc",
