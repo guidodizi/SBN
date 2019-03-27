@@ -1,7 +1,7 @@
 # SBN
 ### Typescript compiler to create .svg images from DBN (Design by Numbers) language (https://dbn.media.mit.edu/)
 
-### Install compile
+### Install compiler
 Run the following command `npm i -g @guidodizi/sbn-compiler`
 
 Then, to compile a `.dbn` file run  `sbn *dbnFile*`
