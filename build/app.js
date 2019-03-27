@@ -20,11 +20,11 @@ var sbn = new index_1.default();
 var fileName = file.split(".dbn")[0];
 if (args["log"]) {
     var lexer = sbn.lexer(code);
-    writeFile(fileName + "_lexer.json", JSON.stringify(lexer));
+    writeFile(fileName + ".lexer.json", JSON.stringify(lexer));
     var parser = sbn.parser(lexer);
-    writeFile(fileName + "_parser.json", JSON.stringify(parser));
+    writeFile(fileName + ".parser.json", JSON.stringify(parser));
     var transformer = sbn.transformer(parser);
-    writeFile(fileName + "._transformer.json", JSON.stringify(transformer));
+    writeFile(fileName + ".transformer.json", JSON.stringify(transformer));
     var generator = sbn.generator(transformer);
     writeFile(fileName + ".html", generator);
     console.log("SVG complied & logged!");

@@ -73,7 +73,7 @@ function findArguments(
 
   // found less arguments than expected
   if (args.length !== cantArgs)
-    throw `${command} expected ${cantArgs} arguments, but found only ${args.length}`;
+    throw `[${command}] expected ${cantArgs} arguments, but found only ${args.length}`;
 
   // type check arguments
   let positionArgument = 0;
@@ -86,9 +86,9 @@ function findArguments(
 
   // typecheck of arguments failed
   if (!argsTypeCheck)
-    throw `${command} takes on parameter ${positionArgument + 1} a ${
+    throw `[${command}] expected on parameter ${positionArgument + 1} a ${
       expectedTypes[positionArgument]
-    }. Found an argument of type ${args[positionArgument].type}`;
+    }. Found a ${args[positionArgument].type}`;
 
   return {
     newTokens: [...tokens],
@@ -124,37 +124,66 @@ export default function parser(tokens: Lexer[]) {
         }
         case PAPER: {
           const expression = new PaperExpression();
+          const command = PAPER;
+          const cantArgs = 1;
+          const expectedTypes: ("word" | "number")[] = ["number"];
 
-          const { newTokens, expressionArgs } = findArguments(tokens, PAPER, 1, ["number"]);
+          const { newTokens, expressionArgs } = findArguments(
+            tokens,
+            command,
+            cantArgs,
+            expectedTypes
+          );
           tokens = newTokens;
           expression.args = <NumberExpression[]>expressionArgs;
+
+          if ((<Lexer>tokens.shift()).type !== "newline")
+            throw `[${command}] expected amount of arguments: ${cantArgs} `;
+
           AST.body.push(expression);
           break;
         }
 
         case PEN: {
           const expression = new PenExpression();
+          const command = PEN;
+          const cantArgs = 1;
+          const expectedTypes: ("word" | "number")[] = ["number"];
 
-          const { newTokens, expressionArgs } = findArguments(tokens, PEN, 1, ["number"]);
+          const { newTokens, expressionArgs } = findArguments(
+            tokens,
+            command,
+            cantArgs,
+            expectedTypes
+          );
           tokens = newTokens;
           expression.args = <NumberExpression[]>expressionArgs;
-          AST.body.push(expression);
 
+          if ((<Lexer>tokens.shift()).type !== "newline")
+            throw `[${command}] expected amount of arguments: ${cantArgs} `;
+
+          AST.body.push(expression);
           break;
         }
         case LINE: {
           const expression = new LineExpression();
+          const command = LINE;
+          const cantArgs = 4;
+          const expectedTypes: ("word" | "number")[] = ["number", "number", "number", "number"];
 
-          const { newTokens, expressionArgs } = findArguments(tokens, LINE, 4, [
-            "number",
-            "number",
-            "number",
-            "number"
-          ]);
+          const { newTokens, expressionArgs } = findArguments(
+            tokens,
+            command,
+            cantArgs,
+            expectedTypes
+          );
           tokens = newTokens;
           expression.args = <NumberExpression[]>expressionArgs;
-          AST.body.push(expression);
 
+          if ((<Lexer>tokens.shift()).type !== "newline")
+            throw `[${command}] expected amount of arguments: ${cantArgs} `;
+
+          AST.body.push(expression);
           break;
         }
       }

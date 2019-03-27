@@ -18,13 +18,13 @@ const sbn = new SBN();
 const fileName = file.split(".dbn")[0];
 if (args["log"]) {
   const lexer = sbn.lexer(code);
-  writeFile(`${fileName}_lexer.json`, JSON.stringify(lexer));
+  writeFile(`${fileName}.lexer.json`, JSON.stringify(lexer));
 
   const parser = sbn.parser(lexer);
-  writeFile(`${fileName}_parser.json`, JSON.stringify(parser));
+  writeFile(`${fileName}.parser.json`, JSON.stringify(parser));
 
   const transformer = sbn.transformer(parser);
-  writeFile(`${fileName}._transformer.json`, JSON.stringify(transformer));
+  writeFile(`${fileName}.transformer.json`, JSON.stringify(transformer));
 
   const generator = sbn.generator(transformer);
   writeFile(`${fileName}.html`, generator);

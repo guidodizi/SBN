@@ -1,3 +1,4 @@
 #! /usr/bin/env node
 const shell = require("shelljs");
-shell.exec(`node ${__dirname}/../build/app.js ${process.argv[2]}`);
+const args = process.argv.slice(2);
+shell.exec(`node ${__dirname}/../build/app.js ${args.join(" ")}`);

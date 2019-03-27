@@ -88,7 +88,7 @@ function findArguments(tokens, command, cantArgs, expectedTypes) {
     var args = tokens.splice(0, cantArgs);
     // found less arguments than expected
     if (args.length !== cantArgs)
-        throw command + " expected " + cantArgs + " arguments, but found only " + args.length;
+        throw "[" + command + "] expected " + cantArgs + " arguments, but found only " + args.length;
     // type check arguments
     var positionArgument = 0;
     var argsTypeCheck = args.some(function (arg, index) {
@@ -101,7 +101,7 @@ function findArguments(tokens, command, cantArgs, expectedTypes) {
     });
     // typecheck of arguments failed
     if (!argsTypeCheck)
-        throw command + " takes on parameter " + (positionArgument + 1) + " a " + expectedTypes[positionArgument] + ". Found an argument of type " + args[positionArgument].type;
+        throw "[" + command + "] expected on parameter " + (positionArgument + 1) + " a " + expectedTypes[positionArgument] + ". Found a " + args[positionArgument].type;
     return {
         newTokens: tokens.slice(),
         expressionArgs: args.map(function (arg) {
@@ -134,30 +134,40 @@ function parser(tokens) {
                 }
                 case call_expressions_consts_1.PAPER: {
                     var expression = new PaperExpression();
-                    var _a = findArguments(tokens, call_expressions_consts_1.PAPER, 1, ["number"]), newTokens = _a.newTokens, expressionArgs = _a.expressionArgs;
+                    var command = call_expressions_consts_1.PAPER;
+                    var cantArgs = 1;
+                    var expectedTypes = ["number"];
+                    var _a = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _a.newTokens, expressionArgs = _a.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
+                    if (tokens.shift().type !== "newline")
+                        throw command + " expected amount of arguments: " + cantArgs + " ";
                     AST.body.push(expression);
                     break;
                 }
                 case call_expressions_consts_1.PEN: {
                     var expression = new PenExpression();
-                    var _b = findArguments(tokens, call_expressions_consts_1.PEN, 1, ["number"]), newTokens = _b.newTokens, expressionArgs = _b.expressionArgs;
+                    var command = call_expressions_consts_1.PEN;
+                    var cantArgs = 1;
+                    var expectedTypes = ["number"];
+                    var _b = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _b.newTokens, expressionArgs = _b.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
+                    if (tokens.shift().type !== "newline")
+                        throw command + " expected amount of arguments: " + cantArgs + " ";
                     AST.body.push(expression);
                     break;
                 }
                 case call_expressions_consts_1.LINE: {
                     var expression = new LineExpression();
-                    var _c = findArguments(tokens, call_expressions_consts_1.LINE, 4, [
-                        "number",
-                        "number",
-                        "number",
-                        "number"
-                    ]), newTokens = _c.newTokens, expressionArgs = _c.expressionArgs;
+                    var command = call_expressions_consts_1.LINE;
+                    var cantArgs = 4;
+                    var expectedTypes = ["number", "number", "number", "number"];
+                    var _c = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _c.newTokens, expressionArgs = _c.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
+                    if (tokens.shift().type !== "newline")
+                        throw command + " expected amount of arguments: " + cantArgs + " ";
                     AST.body.push(expression);
                     break;
                 }
