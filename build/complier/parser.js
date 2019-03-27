@@ -114,6 +114,10 @@ function findArguments(tokens, command, cantArgs, expectedTypes) {
         })
     };
 }
+function checkLineEnd(token, command, cantArgs) {
+    if (token && token.type !== "newline")
+        throw "[" + command + "] expected amount of arguments: " + cantArgs + " ";
+}
 function parser(tokens) {
     var AST = new ASTExpression();
     var paper = false;
@@ -146,8 +150,7 @@ function parser(tokens) {
                     var _a = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _a.newTokens, expressionArgs = _a.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
-                    if (tokens.shift().type !== "newline")
-                        throw "[" + command + "] expected amount of arguments: " + cantArgs + " ";
+                    checkLineEnd(tokens.shift(), command, cantArgs);
                     AST.body.push(expression);
                     break;
                 }
@@ -166,8 +169,7 @@ function parser(tokens) {
                     var _b = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _b.newTokens, expressionArgs = _b.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
-                    if (tokens.shift().type !== "newline")
-                        throw "[" + command + "] expected amount of arguments: " + cantArgs + " ";
+                    checkLineEnd(tokens.shift(), command, cantArgs);
                     AST.body.push(expression);
                     break;
                 }
@@ -182,8 +184,7 @@ function parser(tokens) {
                     var _c = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _c.newTokens, expressionArgs = _c.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
-                    if (tokens.shift().type !== "newline")
-                        throw "[" + command + "] expected amount of arguments: " + cantArgs + " ";
+                    checkLineEnd(tokens.shift(), command, cantArgs);
                     AST.body.push(expression);
                     break;
                 }

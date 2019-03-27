@@ -102,6 +102,11 @@ function findArguments(
   };
 }
 
+function checkLineEnd(token: Lexer | undefined, command: string, cantArgs: number) {
+  if (token && token.type !== "newline")
+    throw `[${command}] expected amount of arguments: ${cantArgs} `;
+}
+
 export default function parser(tokens: Lexer[]) {
   const AST = new ASTExpression();
 
@@ -145,9 +150,7 @@ export default function parser(tokens: Lexer[]) {
           tokens = newTokens;
           expression.args = <NumberExpression[]>expressionArgs;
 
-          if ((<Lexer>tokens.shift()).type !== "newline")
-            throw `[${command}] expected amount of arguments: ${cantArgs} `;
-
+          checkLineEnd(tokens.shift(), command, cantArgs);
           AST.body.push(expression);
           break;
         }
@@ -174,9 +177,7 @@ export default function parser(tokens: Lexer[]) {
           tokens = newTokens;
           expression.args = <NumberExpression[]>expressionArgs;
 
-          if ((<Lexer>tokens.shift()).type !== "newline")
-            throw `[${command}] expected amount of arguments: ${cantArgs} `;
-
+          checkLineEnd(tokens.shift(), command, cantArgs);
           AST.body.push(expression);
           break;
         }
@@ -198,9 +199,7 @@ export default function parser(tokens: Lexer[]) {
           tokens = newTokens;
           expression.args = <NumberExpression[]>expressionArgs;
 
-          if ((<Lexer>tokens.shift()).type !== "newline")
-            throw `[${command}] expected amount of arguments: ${cantArgs} `;
-
+          checkLineEnd(tokens.shift(), command, cantArgs);
           AST.body.push(expression);
           break;
         }
