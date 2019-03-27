@@ -20,3 +20,28 @@ Firstly, the file to be compiled must be with the extension `.dbn`
 | Paper   | `color: {0..100}`                                           | Creates the square that will be used as the workspace. `color` defines the background color |
 | Pen     | `color: {0..100}`                                           | Defines the `color` of the designs                                                          |
 | Line    | `x1: {0..100}` `y1: {0..100}` `x2: {0..100}` `y2: {0..100}` | Creates a line from (`x1`,`y1`) to (`x2`,`y2`)                                              |
+
+### DBN File example
+
+```
+// square_cross.dbn
+
+// White paper!
+Paper 100
+// Black pen!
+Pen 0
+
+Line 0 0 100 100
+Line 100 0 0 100
+Line 0 50 100 50
+
+Line 10 10 10 90
+Line 10 90 90 90
+Line 90 90 90 10
+Line 90 10 10 10
+
+Line 0 0 0 100
+Line 0 100 100 100
+Line 100 100 100 0
+Line 100 0 0 0
+```
