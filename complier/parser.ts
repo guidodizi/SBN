@@ -10,72 +10,57 @@ export interface Expression {
 }
 export class ASTExpression {
   readonly type = "Drawing";
-  body: Expression[] = [];
-  constructor(body: Expression[] = []) {
-    this.body = body;
-  }
+  constructor(public body: Expression[] = []) {}
 }
 
 export class NumberExpression implements Expression {
   readonly type = "NumberLiteral";
-  value: number;
-  constructor(value: number) {
-    this.value = value;
-  }
+  constructor(public value: number) {}
 }
 
 export class CommentExpression implements Expression {
   readonly type = "CommentExpression";
-  value: string;
-  constructor(value: string = "") {
-    this.value = value;
-  }
+  constructor(public value: string = "") {}
 }
 
 export class CallExpression implements Expression {
   readonly type = "CallExpression";
-  readonly name: string;
-  constructor(name: string) {
-    this.name = name;
-  }
+  constructor(public readonly name: string) {}
 }
 
 export class PaperExpression extends CallExpression {
-  args: NumberExpression[];
-  constructor(args: NumberExpression[] = []) {
+  constructor(public args: NumberExpression[] = []) {
     super(PAPER);
-    this.args = args;
   }
 }
 export class PenExpression extends CallExpression {
-  args: NumberExpression[];
-  constructor(args: NumberExpression[] = []) {
+  constructor(public args: NumberExpression[] = []) {
     super(PEN);
-    this.args = args;
   }
 }
 export class LineExpression extends CallExpression {
-  args: NumberExpression[];
-  constructor(args: NumberExpression[] = []) {
+  constructor(public args: NumberExpression[] = []) {
     super(LINE);
-    this.args = args;
   }
 }
 
 function findArguments(
+  lineCount: number,
   tokens: Lexer[],
   command: string,
   cantArgs: number,
   expectedTypes: ("word" | "number")[]
 ): { newTokens: Lexer[]; expressionArgs: Expression[] } {
   // get arguments
-  const args = tokens.splice(0, cantArgs);
+  const args = tokens.splice(0, cantArgs).filter((t: Lexer) => t.type !== "newline");
 
   // found less arguments than expected
   if (args.length !== cantArgs)
-    throw `[${command}] expected ${cantArgs} arguments, but found only ${args.length}`;
+    throw `[Line ${lineCount}]: ${command} expected ${cantArgs} arguments, but found only ${
+      args.length
+    }`;
 
-  // type check arguments
+  // type check arguments with lexer values
   let positionArgument = 0;
   const argsTypeCheck = args.some((arg: Lexer, index: number) => {
     if (arg.type !== expectedTypes[index]) {
@@ -86,7 +71,7 @@ function findArguments(
 
   // typecheck of arguments failed
   if (!argsTypeCheck)
-    throw `[${command}] expected on parameter ${positionArgument + 1} a ${
+    throw `[Line ${lineCount}]: ${command} expected on parameter ${positionArgument + 1} a ${
       expectedTypes[positionArgument]
     }. Found a ${args[positionArgument].type}`;
 
@@ -96,7 +81,7 @@ function findArguments(
       if (arg instanceof LexerNumber) {
         return new NumberExpression(arg.value);
       } else if (arg instanceof LexerWord) {
-        throw "Not implemented yet";
+        throw `[Line ${lineCount}]: Not implemented yet`;
       }
     })
   };
@@ -104,7 +89,7 @@ function findArguments(
 
 function checkLineEnd(token: Lexer | undefined, command: string, cantArgs: number) {
   if (token && token.type !== "newline")
-    throw `[${command}] expected amount of arguments: ${cantArgs} `;
+    throw `[Line ${token.lineCount}]: ${command} expected amount of arguments: ${cantArgs} `;
 }
 
 export default function parser(tokens: Lexer[]) {
@@ -132,7 +117,7 @@ export default function parser(tokens: Lexer[]) {
         }
         case PAPER: {
           if (paper) {
-            throw `[${PAPER}] was already defined`;
+            throw `[Line ${currentToken.lineCount}]: ${PAPER} was already defined`;
           }
           paper = true;
 
@@ -142,6 +127,7 @@ export default function parser(tokens: Lexer[]) {
           const expectedTypes: ("word" | "number")[] = ["number"];
 
           const { newTokens, expressionArgs } = findArguments(
+            currentToken.lineCount,
             tokens,
             command,
             cantArgs,
@@ -157,10 +143,12 @@ export default function parser(tokens: Lexer[]) {
 
         case PEN: {
           if (!paper) {
-            throw `First command must always be a [${PAPER}] command`;
+            throw `[Line ${
+              currentToken.lineCount
+            }]: First command must always be a ${PAPER} command`;
           }
           if (pen) {
-            throw `[${PEN}] was already defined`;
+            throw `[Line ${currentToken.lineCount}]: ${PEN} was already defined`;
           }
           pen = true;
           const expression = new PenExpression();
@@ -169,6 +157,7 @@ export default function parser(tokens: Lexer[]) {
           const expectedTypes: ("word" | "number")[] = ["number"];
 
           const { newTokens, expressionArgs } = findArguments(
+            currentToken.lineCount,
             tokens,
             command,
             cantArgs,
@@ -183,7 +172,9 @@ export default function parser(tokens: Lexer[]) {
         }
         case LINE: {
           if (!paper) {
-            throw `First command must always be a [${PAPER}] command`;
+            throw `[Line ${
+              currentToken.lineCount
+            }]: First command must always be a ${PAPER} command`;
           }
           const expression = new LineExpression();
           const command = LINE;
@@ -191,6 +182,7 @@ export default function parser(tokens: Lexer[]) {
           const expectedTypes: ("word" | "number")[] = ["number", "number", "number", "number"];
 
           const { newTokens, expressionArgs } = findArguments(
+            currentToken.lineCount,
             tokens,
             command,
             cantArgs,

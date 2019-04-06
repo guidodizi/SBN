@@ -18,17 +18,16 @@ var call_expressions_consts_1 = require("../consts/call-expressions.consts");
 var ASTExpression = /** @class */ (function () {
     function ASTExpression(body) {
         if (body === void 0) { body = []; }
-        this.type = "Drawing";
-        this.body = [];
         this.body = body;
+        this.type = "Drawing";
     }
     return ASTExpression;
 }());
 exports.ASTExpression = ASTExpression;
 var NumberExpression = /** @class */ (function () {
     function NumberExpression(value) {
-        this.type = "NumberLiteral";
         this.value = value;
+        this.type = "NumberLiteral";
     }
     return NumberExpression;
 }());
@@ -36,16 +35,16 @@ exports.NumberExpression = NumberExpression;
 var CommentExpression = /** @class */ (function () {
     function CommentExpression(value) {
         if (value === void 0) { value = ""; }
-        this.type = "CommentExpression";
         this.value = value;
+        this.type = "CommentExpression";
     }
     return CommentExpression;
 }());
 exports.CommentExpression = CommentExpression;
 var CallExpression = /** @class */ (function () {
     function CallExpression(name) {
-        this.type = "CallExpression";
         this.name = name;
+        this.type = "CallExpression";
     }
     return CallExpression;
 }());
@@ -83,13 +82,13 @@ var LineExpression = /** @class */ (function (_super) {
     return LineExpression;
 }(CallExpression));
 exports.LineExpression = LineExpression;
-function findArguments(tokens, command, cantArgs, expectedTypes) {
+function findArguments(lineCount, tokens, command, cantArgs, expectedTypes) {
     // get arguments
-    var args = tokens.splice(0, cantArgs);
+    var args = tokens.splice(0, cantArgs).filter(function (t) { return t.type !== "newline"; });
     // found less arguments than expected
     if (args.length !== cantArgs)
-        throw "[" + command + "] expected " + cantArgs + " arguments, but found only " + args.length;
-    // type check arguments
+        throw "[Line " + lineCount + "]: " + command + " expected " + cantArgs + " arguments, but found only " + args.length;
+    // type check arguments with lexer values
     var positionArgument = 0;
     var argsTypeCheck = args.some(function (arg, index) {
         if (arg.type !== expectedTypes[index]) {
@@ -101,7 +100,7 @@ function findArguments(tokens, command, cantArgs, expectedTypes) {
     });
     // typecheck of arguments failed
     if (!argsTypeCheck)
-        throw "[" + command + "] expected on parameter " + (positionArgument + 1) + " a " + expectedTypes[positionArgument] + ". Found a " + args[positionArgument].type;
+        throw "[Line " + lineCount + "]: " + command + " expected on parameter " + (positionArgument + 1) + " a " + expectedTypes[positionArgument] + ". Found a " + args[positionArgument].type;
     return {
         newTokens: tokens.slice(),
         expressionArgs: args.map(function (arg) {
@@ -109,14 +108,14 @@ function findArguments(tokens, command, cantArgs, expectedTypes) {
                 return new NumberExpression(arg.value);
             }
             else if (arg instanceof lexer_1.LexerWord) {
-                throw "Not implemented yet";
+                throw "[Line " + lineCount + "]: Not implemented yet";
             }
         })
     };
 }
 function checkLineEnd(token, command, cantArgs) {
     if (token && token.type !== "newline")
-        throw "[" + command + "] expected amount of arguments: " + cantArgs + " ";
+        throw "[Line " + token.lineCount + "]: " + command + " expected amount of arguments: " + cantArgs + " ";
 }
 function parser(tokens) {
     var AST = new ASTExpression();
@@ -140,14 +139,14 @@ function parser(tokens) {
                 }
                 case call_expressions_consts_1.PAPER: {
                     if (paper) {
-                        throw "[" + call_expressions_consts_1.PAPER + "] was already defined";
+                        throw "[Line " + currentToken.lineCount + "]: " + call_expressions_consts_1.PAPER + " was already defined";
                     }
                     paper = true;
                     var expression = new PaperExpression();
                     var command = call_expressions_consts_1.PAPER;
                     var cantArgs = 1;
                     var expectedTypes = ["number"];
-                    var _a = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _a.newTokens, expressionArgs = _a.expressionArgs;
+                    var _a = findArguments(currentToken.lineCount, tokens, command, cantArgs, expectedTypes), newTokens = _a.newTokens, expressionArgs = _a.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
                     checkLineEnd(tokens.shift(), command, cantArgs);
@@ -156,17 +155,17 @@ function parser(tokens) {
                 }
                 case call_expressions_consts_1.PEN: {
                     if (!paper) {
-                        throw "First command must always be a [" + call_expressions_consts_1.PAPER + "] command";
+                        throw "[Line " + currentToken.lineCount + "]: First command must always be a " + call_expressions_consts_1.PAPER + " command";
                     }
                     if (pen) {
-                        throw "[" + call_expressions_consts_1.PEN + "] was already defined";
+                        throw "[Line " + currentToken.lineCount + "]: " + call_expressions_consts_1.PEN + " was already defined";
                     }
                     pen = true;
                     var expression = new PenExpression();
                     var command = call_expressions_consts_1.PEN;
                     var cantArgs = 1;
                     var expectedTypes = ["number"];
-                    var _b = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _b.newTokens, expressionArgs = _b.expressionArgs;
+                    var _b = findArguments(currentToken.lineCount, tokens, command, cantArgs, expectedTypes), newTokens = _b.newTokens, expressionArgs = _b.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
                     checkLineEnd(tokens.shift(), command, cantArgs);
@@ -175,13 +174,13 @@ function parser(tokens) {
                 }
                 case call_expressions_consts_1.LINE: {
                     if (!paper) {
-                        throw "First command must always be a [" + call_expressions_consts_1.PAPER + "] command";
+                        throw "[Line " + currentToken.lineCount + "]: First command must always be a " + call_expressions_consts_1.PAPER + " command";
                     }
                     var expression = new LineExpression();
                     var command = call_expressions_consts_1.LINE;
                     var cantArgs = 4;
                     var expectedTypes = ["number", "number", "number", "number"];
-                    var _c = findArguments(tokens, command, cantArgs, expectedTypes), newTokens = _c.newTokens, expressionArgs = _c.expressionArgs;
+                    var _c = findArguments(currentToken.lineCount, tokens, command, cantArgs, expectedTypes), newTokens = _c.newTokens, expressionArgs = _c.expressionArgs;
                     tokens = newTokens;
                     expression.args = expressionArgs;
                     checkLineEnd(tokens.shift(), command, cantArgs);

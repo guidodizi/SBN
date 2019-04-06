@@ -1,1 +1,0 @@
-{"type":"Drawing","body":[{"type":"CommentExpression","value":"draw a line jeje "},{"type":"CallExpression","name":"Pen","args":[{"type":"NumberLiteral","value":0}]},{"type":"CallExpression","name":"Line","args":[{"type":"NumberLiteral","value":0},{"type":"NumberLiteral","value":0},{"type":"NumberLiteral","value":100},{"type":"NumberLiteral","value":100}]}]}
