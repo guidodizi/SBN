@@ -1,9 +1,10 @@
 {
   "name": "@guidodizi/sbn-compiler",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "scripts": {
     "tsc": "tsc",
-    "sbn": "tsc && node build/app.js"
+    "sbn": "tsc && node build/app.js",
+    "publish": "npm publish --access=public"
   },
   "bin": {
     "sbn": "bin/sbn.js"
