@@ -3,7 +3,7 @@ export const PAPER = "Paper";
 export const PEN = "Pen";
 export const LINE = "Line";
 
-module.exports = {
+export default {
   COMMENT,
   PAPER,
   PEN,
