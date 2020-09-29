@@ -59,22 +59,3 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   }
 }
-
-// ANGULAR TYPESCRIPT OPTIONS
-// {
-//   "compileOnSave": false,
-//   "compilerOptions": {
-//     "outDir": "./dist/out-tsc",
-//     "sourceMap": true,
-//     "declaration": false,
-//     "moduleResolution": "node",
-//     "emitDecoratorMetadata": true,
-//     "experimentalDecorators": true,
-//     "target": "es5",
-//     "typeRoots": ["node_modules/@types"],
-//     "lib": ["es2017", "dom"],
-//     "module": "es2015",
-//     "baseUrl": "./src",
-//     "resolveJsonModule": true,
-//     "esModuleInterop": true
-//   }
